@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L'Art de la Coiffure – Prise de rendez-vous</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f5f0;
+      --surface: #ffffff;
+      --surface-2: #f0ede6;
+      --border: #e0dbd0;
+      --text: #1a1a1a;
+      --text-muted: #888;
+      --gold: #c9a96e;
+      --gold-light: #f5ead8;
+      --dark: #1a1a1a;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      background: var(--dark);
+      color: #f5f0e8;
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: rgba(201,169,110,0.12);
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -50px; left: -50px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: rgba(201,169,110,0.07);
+    }
+    .hero-badge {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 0.5px solid rgba(201,169,110,0.4);
+      padding: 5px 16px;
+      border-radius: 20px;
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+    }
+    .hero h1 em { font-style: italic; color: var(--gold); }
+    .hero p { font-size: 14px; color: #aaa; font-weight: 300; letter-spacing: 0.5px; }
+
+    /* ─── CONTAINER ─── */
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* ─── STEPS NAV ─── */
+    .steps-nav {
+      display: flex;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 1rem 1.4rem;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      flex: 1;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .step-item.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+      background: var(--surface);
+    }
+    .step-item.done { color: var(--text); }
+    .step-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: #e8e5df;
+      font-size: 11px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-item.active .step-num { background: var(--gold); color: #fff; }
+    .step-item.done .step-num { background: var(--dark); color: #fff; }
+
+    /* ─── PANEL ─── */
+    .panel { padding: 2rem 1.5rem; }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      margin-bottom: 0.3rem;
+    }
+    .section-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    /* ─── SERVICES ─── */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+    .service-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.2rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .service-card:hover { border-color: rgba(201,169,110,0.6); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+    .service-card.selected {
+      border: 2px solid var(--gold);
+      background: var(--gold-light);
+    }
+    .service-icon { font-size: 26px; margin-bottom: 10px; display: block; }
+    .service-name { font-size: 13px; font-weight: 500; color: var(--text); }
+    .service-price { font-size: 13px; color: var(--gold); margin-top: 4px; font-weight: 500; }
+    .service-dur { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ─── CALENDAR ─── */
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .cal-header span { font-weight: 500; font-size: 16px; }
+    .cal-nav {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 34px; height: 34px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+    .cal-nav:hover { background: var(--surface-2); }
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 1.5rem;
+    }
+    .day-label {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 6px 0;
+      font-weight: 500;
+    }
+    .day-btn {
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 8px 4px;
+      text-align: center;
+      cursor: pointer;
+      background: none;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      transition: all 0.15s;
+      position: relative;
+    }
+    .day-btn:hover:not(:disabled) { background: var(--surface-2); border-color: var(--border); }
+    .day-btn.selected { background: var(--dark); color: #f5f0e8; border-color: var(--dark); }
+    .day-btn.has-slots::after {
+      content: '';
+      position: absolute;
+      bottom: 4px; left: 50%;
+      transform: translateX(-50%);
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+    .day-btn:disabled { color: #ccc; cursor: not-allowed; }
+    .day-btn.other-month { color: #ccc; }
+
+    /* ─── SLOTS ─── */
+    .slots-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .slots-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2rem; }
+    .slot-btn {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+    .slot-btn:hover { border-color: rgba(201,169,110,0.6); color: var(--gold); }
+    .slot-btn.selected { background: var(--dark); color: #f5f0e8; border-color: var(--dark); }
+    .no-slots {
+      font-size: 13px;
+      color: var(--text-muted);
+      padding: 1rem;
+      text-align: center;
+      background: var(--surface-2);
+      border-radius: 10px;
+      margin-bottom: 2rem;
+    }
+
+    /* ─── FORM ─── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-row { margin-bottom: 14px; }
+    .form-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: block;
+      font-weight: 500;
+    }
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-row input:focus,
+    .form-row select:focus,
+    .form-row textarea:focus { border-color: var(--gold); }
+
+    /* ─── RECAP ─── */
+    .recap-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .recap-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+    .recap-row:not(:last-child) { border-bottom: 1px solid var(--border); }
+    .recap-label { color: var(--text-muted); }
+    .recap-val { font-weight: 500; }
+    .recap-price { color: var(--gold); font-weight: 500; font-size: 16px; }
+
+    /* ─── BUTTONS ─── */
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: var(--dark);
+      color: #f5f0e8;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary:hover { background: #333; }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+    .btn-back {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      margin-bottom: 1.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .btn-back:hover { background: var(--surface-2); }
+
+    /* ─── SUCCESS ─── */
+    .success-box { text-align: center; padding: 3rem 1rem; }
+    .success-icon {
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      background: var(--dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 30px;
+    }
+    .success-box h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 400;
+      margin-bottom: 0.8rem;
+    }
+    .success-box p { font-size: 14px; color: var(--text-muted); line-height: 1.7; max-width: 400px; margin: 0 auto; }
+    .success-detail {
+      background: var(--gold-light);
+      border: 1px solid rgba(201,169,110,0.3);
+      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+      margin: 1.5rem auto;
+      max-width: 380px;
+      text-align: left;
+    }
+    .success-detail div { font-size: 14px; padding: 5px 0; display: flex; justify-content: space-between; }
+    .success-detail div span:first-child { color: var(--text-muted); }
+    .success-detail div span:last-child { font-weight: 500; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 540px) {
+      .hero h1 { font-size: 1.9rem; }
+      .form-grid { grid-template-columns: 1fr; }
+      .step-item span { display: none; }
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">Salon de coiffure</div>
+    <h1>L'Art de la <em>Coiffure</em></h1>
+    <p>Réservez votre moment de beauté en quelques clics</p>
+    <p style="margin-top:1rem;font-size:15px;color:#c9a96e;font-weight:500;">7 rue de l'embellie, 56100</p>
+  </div>
+
+  <!-- STEPS -->
+  <div class="steps-nav" id="steps-nav">
+    <div class="step-item active" id="s1"><div class="step-num">1</div><span>Prestation</span></div>
+    <div class="step-item" id="s2"><div class="step-num">2</div><span>Date &amp; heure</span></div>
+    <div class="step-item" id="s3"><div class="step-num">3</div><span>Vos infos</span></div>
+    <div class="step-item" id="s4"><div class="step-num">4</div><span>Confirmation</span></div>
+  </div>
+
+  <div class="container">
+
+    <!-- PANEL 1 : PRESTATION -->
+    <div class="panel" id="panel1">
+      <p class="section-title">Choisissez votre prestation</p>
+      <p class="section-sub">Sélectionnez le service qui vous convient</p>
+      <div class="services-grid" id="services-grid"></div>
+      <button class="btn-primary" id="btn1" onclick="goStep(2)" disabled>
+        Choisir une date →
+      </button>
+    </div>
+
+    <!-- PANEL 2 : DATE & HEURE -->
+    <div class="panel" id="panel2" style="display:none">
+      <button class="btn-back" onclick="goStep(1)">← Retour</button>
+      <p class="section-title">Sélectionnez une date</p>
+      <p class="section-sub">Les créneaux disponibles s'affichent après avoir choisi une date</p>
+      <div class="cal-header">
+        <button class="cal-nav" onclick="changeMonth(-1)">&#8249;</button>
+        <span id="month-label"></span>
+        <button class="cal-nav" onclick="changeMonth(1)">&#8250;</button>
+      </div>
+      <div class="days-grid" id="cal-grid"></div>
+      <div id="slots-section" style="display:none">
+        <p class="slots-title">Créneaux disponibles</p>
+        <div class="slots-grid" id="slots-grid"></div>
+      </div>
+      <button class="btn-primary" id="btn2" onclick="goStep(3)" disabled>
+        Continuer →
+      </button>
+    </div>
+
+    <!-- PANEL 3 : COORDONNÉES -->
+    <div class="panel" id="panel3" style="display:none">
+      <button class="btn-back" onclick="goStep(2)">← Retour</button>
+      <p class="section-title">Vos coordonnées</p>
+      <p class="section-sub">Pour confirmer votre rendez-vous</p>
+      <div class="form-grid">
+        <div class="form-row">
+          <label class="form-label">Prénom *</label>
+          <input type="text" id="prenom" placeholder="Marie">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Nom *</label>
+          <input type="text" id="nom" placeholder="Dupont">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Téléphone *</label>
+        <input type="tel" id="tel" placeholder="06 12 34 56 78">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Email *</label>
+        <input type="email" id="email" placeholder="marie@email.com">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Message (optionnel)</label>
+        <input type="text" id="msg" placeholder="Précisions sur votre coiffure...">
+      </div>
+      <button class="btn-primary" onclick="goStep(4)">Récapitulatif →</button>
+    </div>
+
+    <!-- PANEL 4 : RÉCAPITULATIF -->
+    <div class="panel" id="panel4" style="display:none">
+      <button class="btn-back" onclick="goStep(3)">← Retour</button>
+      <p class="section-title">Récapitulatif</p>
+      <p class="section-sub">Vérifiez votre rendez-vous avant de confirmer</p>
+      <div class="recap-card" id="recap-content"></div>
+      <button class="btn-primary" onclick="confirmRdv()">
+        ✓ Confirmer le rendez-vous
+      </button>
+    </div>
+
+    <!-- PANEL 5 : SUCCÈS -->
+    <div class="panel" id="panel5" style="display:none">
+      <div class="success-box">
+        <div class="success-icon">✓</div>
+        <h2>Rendez-vous confirmé !</h2>
+        <div class="success-detail" id="success-detail"></div>
+        <p>Un SMS de confirmation vous sera envoyé. À très bientôt !</p>
+        <br>
+        <button class="btn-primary" style="max-width:260px; margin: 0 auto;" onclick="reset()">
+          + Nouveau rendez-vous
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const services = [
+      { id:1, icon:'✂️', name:'Homme sans barbe',        price:'13 €',  dur:'1h',  mins:60  },
+      { id:2, icon:'✂️', name:'Homme avec barbe',        price:'15 €',  dur:'1h',  mins:60  },
+      { id:3, icon:'✂️', name:'Femme',                   price:'10 €',  dur:'1h',  mins:60  },
+      { id:4, icon:'🎨', name:'Coloration',              price:'40 €',  dur:'1h30',    mins:90  },
+      { id:5, icon:'🚗', name:'Déplacement à domicile',  price:'20 €',  dur:'variable', mins:0 },
+    ];
+
+    const allSlots   = ['09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30'];
+    const closedDays = [0, 6]; // 0 = dimanche, 6 = samedi
+
+    const months    = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+    const dayLabels = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+
+    let sel = { service: null, date: null, slot: null };
+    let curYear, curMonth;
+    const now = new Date();
+    curYear = now.getFullYear();
+    curMonth = now.getMonth();
+
+    function init() {
+      const grid = document.getElementById('services-grid');
+      grid.innerHTML = services.map(s => `
+        <div class="service-card" onclick="selectService(${s.id})" id="svc${s.id}">
+          <span class="service-icon">${s.icon}</span>
+          <div class="service-name">${s.name}</div>
+          <div class="service-price">${s.price}</div>
+          <div class="service-dur">${s.dur}</div>
+        </div>`).join('');
+      renderCal();
+    }
+
+    function selectService(id) {
+      sel.service = services.find(s => s.id === id);
+      document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('svc' + id).classList.add('selected');
+      document.getElementById('btn1').disabled = false;
+    }
+
+    function renderCal() {
+      document.getElementById('month-label').textContent = months[curMonth] + ' ' + curYear;
+      const grid = document.getElementById('cal-grid');
+      let html = dayLabels.map(d => `<div class="day-label">${d}</div>`).join('');
+      const firstDay = new Date(curYear, curMonth, 1);
+      let startDow = firstDay.getDay(); if (startDow === 0) startDow = 7;
+      const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
+      const prevMonthDays = new Date(curYear, curMonth, 0).getDate();
+      const today = new Date(); today.setHours(0,0,0,0);
+      for (let i = startDow - 1; i > 0; i--)
+        html += `<button class="day-btn other-month" disabled>${prevMonthDays - i + 1}</button>`;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const date  = new Date(curYear, curMonth, d);
+        const dow   = date.getDay();
+        const isOff = closedDays.includes(dow);
+        const isPast = date < today;
+        const ds    = dateStr(curYear, curMonth, d);
+        const isSel = sel.date === ds;
+        const active = !isOff && !isPast;
+        html += `<button class="day-btn${isSel ? ' selected' : ''}${active ? ' has-slots' : ''}"
+                   ${isOff || isPast ? 'disabled' : ''}
+                   onclick="selectDate('${ds}')">${d}</button>`;
+      }
+      const filled = (startDow - 1) + daysInMonth;
+      const rem = (7 - filled % 7) % 7;
+      for (let i = 1; i <= rem; i++)
+        html += `<button class="day-btn other-month" disabled>${i}</button>`;
+      grid.innerHTML = html;
+    }
+
+    function dateStr(y, m, d) {
+      return y + '-' + String(m + 1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    }
+
+    function changeMonth(dir) {
+      curMonth += dir;
+      if (curMonth > 11) { curMonth = 0; curYear++; }
+      if (curMonth <  0) { curMonth = 11; curYear--; }
+      sel.date = null; sel.slot = null;
+      document.getElementById('btn2').disabled = true;
+      document.getElementById('slots-section').style.display = 'none';
+      renderCal();
+    }
+
+    function selectDate(ds) {
+      sel.date = ds; sel.slot = null;
+      document.getElementById('btn2').disabled = true;
+      renderCal();
+      const ss = document.getElementById('slots-section');
+      const sg = document.getElementById('slots-grid');
+      ss.style.display = 'block';
+      const avail = allSlots.filter(() => Math.random() > 0.2);
+      if (!avail.length) {
+        sg.innerHTML = '<div class="no-slots">Aucun créneau disponible ce jour. Choisissez une autre date.</div>';
+      } else {
+        sg.innerHTML = avail.map(t =>
+          `<button class="slot-btn" onclick="selectSlot('${t}',this)">${t}</button>`
+        ).join('');
+      }
+    }
+
+    function selectSlot(t, btn) {
+      sel.slot = t;
+      document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('btn2').disabled = false;
+    }
+
+    function goStep(n) {
+      if (n === 4) {
+        const p  = document.getElementById('prenom').value.trim();
+        const no = document.getElementById('nom').value.trim();
+        const t  = document.getElementById('tel').value.trim();
+        const e  = document.getElementById('email').value.trim();
+        if (!p || !no || !t || !e) {
+          alert('Veuillez remplir tous les champs obligatoires (*).');
+          return;
+        }
+        const ds = formatDate(sel.date);
+        document.getElementById('recap-content').innerHTML = `
+          <div class="recap-row"><span class="recap-label">Prestation</span><span class="recap-val">${sel.service.name}</span></div>
+          <div class="recap-row"><span class="recap-label">Durée estimée</span><span class="recap-val">${sel.service.dur}</span></div>
+          <div class="recap-row"><span class="recap-label">Date</span><span class="recap-val">${ds}</span></div>
+          <div class="recap-row"><span class="recap-label">Heure</span><span class="recap-val">${sel.slot}</span></div>
+          <div class="recap-row"><span class="recap-label">Client(e)</span><span class="recap-val">${p} ${no}</span></div>
+          <div class="recap-row"><span class="recap-label">Téléphone</span><span class="recap-val">${t}</span></div>
+          <div class="recap-row"><span class="recap-label">Email</span><span class="recap-val">${e}</span></div>
+          <div class="recap-row"><span class="recap-label">Tarif</span><span class="recap-price">${sel.service.price}</span></div>`;
+      }
+      for (let i = 1; i <= 5; i++) {
+        document.getElementById('panel' + i).style.display = i === n ? '' : 'none';
+        const si = document.getElementById('s' + i);
+        if (si) si.className = 'step-item' + (i === n ? ' active' : i < n ? ' done' : '');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function formatDate(ds) {
+      const [y, m, d] = ds.split('-');
+      return parseInt(d) + ' ' + months[parseInt(m) - 1] + ' ' + y;
+    }
+
+    function confirmRdv() {
+      const p  = document.getElementById('prenom').value.trim();
+      const no = document.getElementById('nom').value.trim();
+      const t  = document.getElementById('tel').value.trim();
+      const e  = document.getElementById('email').value.trim();
+      const ds = formatDate(sel.date);
+      // Appel backend pour SMS
+      fetch('http://localhost:3001/api/reservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prenom: p,
+          nom: no,
+          tel: t,
+          email: e,
+          service: sel.service.name,
+          date: ds,
+          heure: sel.slot
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (!data.success) alert('Erreur lors de l\'envoi du SMS : ' + (data.error || '')); 
+      })
+      .catch(() => alert('Erreur de connexion au serveur SMS.'));
+      document.getElementById('success-detail').innerHTML = `
+        <div><span>Prestation</span><span>${sel.service.name}</span></div>
+        <div><span>Date</span><span>${ds} à ${sel.slot}</span></div>
+        <div><span>Nom</span><span>${p} ${no}</span></div>
+        <div><span>Téléphone</span><span>${t}</span></div>
+        <div><span>Tarif</span><span style="color:#c9a96e">${sel.service.price}</span></div>`;
+      goStep(5);
+    }
+
+    function reset() {
+      sel = { service: null, date: null, slot: null };
+      ['prenom','nom','tel','email','msg'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('btn1').disabled = true;
+      document.getElementById('btn2').disabled = true;
+      document.getElementById('slots-section').style.display = 'none';
+      init();
+      goStep(1);
+    }
+
+    init();
+  </script>
+</body>
+</html>
