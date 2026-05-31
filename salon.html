@@ -571,14 +571,17 @@
       renderCal();
     }
 
-    function selectDate(ds) {
+    async function selectDate(ds) {
       sel.date = ds; sel.slot = null;
       document.getElementById('btn2').disabled = true;
       renderCal();
       const ss = document.getElementById('slots-section');
       const sg = document.getElementById('slots-grid');
       ss.style.display = 'block';
-      const avail = allSlots.filter(() => Math.random() > 0.2);
+      sg.innerHTML = '<div class="no-slots">Chargement...</div>';
+      const resp = await fetch('/api/slots?date=' + ds);
+      const data = await resp.json();
+      const avail = data.available;
       if (!avail.length) {
         sg.innerHTML = '<div class="no-slots">Aucun créneau disponible ce jour. Choisissez une autre date.</div>';
       } else {
@@ -651,7 +654,7 @@
       })
       .then(r => r.json())
       .then(data => {
-        if (!data.success) alert('Erreur lors de l\'envoi du SMS : ' + (data.error || '')); 
+        if (!data.success) { alert(data.error || 'Erreur lors de la réservation.'); return; } 
       })
       .catch(() => alert('Erreur de connexion au serveur SMS.'));
       document.getElementById('success-detail').innerHTML = `
