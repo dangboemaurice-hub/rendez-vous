@@ -632,31 +632,31 @@
       return parseInt(d) + ' ' + months[parseInt(m) - 1] + ' ' + y;
     }
 
-    function confirmRdv() {
+    async function confirmRdv() {
       const p  = document.getElementById('prenom').value.trim();
       const no = document.getElementById('nom').value.trim();
       const t  = document.getElementById('tel').value.trim();
       const e  = document.getElementById('email').value.trim();
       const ds = formatDate(sel.date);
-      // Appel backend pour SMS
-      fetch('/api/reservation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prenom: p,
-          nom: no,
-          tel: t,
-          email: e,
-          service: sel.service.name,
-          date: ds,
-          heure: sel.slot
-        })
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (!data.success) { alert(data.error || 'Erreur lors de la réservation.'); return; } 
-      })
-      .catch(() => alert('Erreur de connexion au serveur SMS.'));
+      try {
+        const resp = await fetch('/api/reservation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prenom: p, nom: no, tel: t, email: e,
+            service: sel.service.name, date: ds, heure: sel.slot
+          })
+        });
+        const data = await resp.json();
+        if (!data.success) {
+          alert(data.error || 'Erreur lors de la réservation.');
+          await selectDate(sel.date);
+          return;
+        }
+      } catch {
+        alert('Erreur de connexion au serveur.');
+        return;
+      }
       document.getElementById('success-detail').innerHTML = `
         <div><span>Prestation</span><span>${sel.service.name}</span></div>
         <div><span>Date</span><span>${ds} à ${sel.slot}</span></div>
