@@ -636,7 +636,7 @@
       const e  = document.getElementById('email').value.trim();
       const ds = formatDate(sel.date);
       // Appel backend pour SMS
-      fetch('http://localhost:3001/api/reservation', {
+      fetch('/api/reservation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
