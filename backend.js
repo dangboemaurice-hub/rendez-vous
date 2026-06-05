@@ -61,7 +61,7 @@ app.post('/api/reservation', async (req, res) => {
     const displayDate = parseInt(d) + ' ' + months[parseInt(m) - 1] + ' ' + y;
     await resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: 'dangboemaurice@gmail.com',
+      to: 'becromin13@gmail.com',
       subject: `Nouvelle réservation — ${prenom} ${nom}`,
       html: `
         <h2>Nouvelle réservation</h2>
