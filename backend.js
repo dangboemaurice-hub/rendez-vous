@@ -79,6 +79,19 @@ app.post('/api/reservation', async (req, res) => {
   }
 });
 
+const ADMIN_PWD = 'maurice200';
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+app.get('/api/admin/reservations', (req, res) => {
+  if (req.query.pwd !== ADMIN_PWD) {
+    return res.status(401).json({ error: 'Mot de passe incorrect.' });
+  }
+  res.json(bookings);
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log('Serveur backend démarré sur http://localhost:' + PORT);

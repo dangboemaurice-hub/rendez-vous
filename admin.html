@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Jojo Barber</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f7f5f0;
+      --surface: #ffffff;
+      --border: #e0dbd0;
+      --text: #1a1a1a;
+      --text-muted: #888;
+      --gold: #c9a96e;
+      --dark: #1a1a1a;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .header {
+      background: var(--dark);
+      color: #f5f0e8;
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header h1 { font-size: 1.2rem; font-weight: 500; }
+    .header span { font-size: 13px; color: var(--gold); }
+
+    .login-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 70px);
+    }
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+    .login-card h2 { font-size: 1.1rem; font-weight: 500; margin-bottom: 0.4rem; }
+    .login-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .login-card input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      margin-bottom: 1rem;
+    }
+    .login-card input:focus { border-color: var(--gold); }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--dark);
+      color: #f5f0e8;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn:hover { background: #333; }
+    .error-msg { font-size: 13px; color: #c0392b; margin-top: 0.8rem; }
+
+    .admin-wrap { padding: 2rem 1rem; max-width: 900px; margin: 0 auto; }
+    .admin-title {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+    }
+    .admin-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .count-badge {
+      display: inline-block;
+      background: var(--gold);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 20px;
+      margin-left: 8px;
+    }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; }
+    thead { background: var(--dark); color: #f5f0e8; }
+    thead th { padding: 12px 16px; font-size: 12px; font-weight: 500; text-align: left; letter-spacing: 0.5px; }
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #faf8f4; }
+    tbody td { padding: 12px 16px; font-size: 13px; }
+    .empty { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 14px; }
+
+    .refresh-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      margin-bottom: 1.5rem;
+    }
+    .refresh-btn:hover { background: #f0ede6; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Jojo Barber — Admin</h1>
+  <span id="header-info">Tableau de bord</span>
+</div>
+
+<div class="login-wrap" id="login-section">
+  <div class="login-card">
+    <h2>Accès réservé</h2>
+    <p>Entrez votre mot de passe pour voir les rendez-vous</p>
+    <input type="password" id="pwd-input" placeholder="Mot de passe" onkeydown="if(event.key==='Enter') login()">
+    <button class="btn" onclick="login()">Accéder</button>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+</div>
+
+<div class="admin-wrap" id="admin-section" style="display:none">
+  <p class="admin-title">Rendez-vous <span class="count-badge" id="count">0</span></p>
+  <p class="admin-sub">Liste de toutes les réservations</p>
+  <button class="refresh-btn" onclick="loadReservations()">↻ Actualiser</button>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nom</th>
+          <th>Téléphone</th>
+          <th>Email</th>
+          <th>Service</th>
+          <th>Date</th>
+          <th>Heure</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  let pwd = '';
+  const monthsNames = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+  function formatDate(iso) {
+    const [y, m, d] = iso.split('-');
+    return parseInt(d) + ' ' + monthsNames[parseInt(m) - 1] + ' ' + y;
+  }
+
+  async function login() {
+    pwd = document.getElementById('pwd-input').value;
+    const resp = await fetch('/api/admin/reservations?pwd=' + encodeURIComponent(pwd));
+    if (resp.status === 401) {
+      document.getElementById('error-msg').textContent = 'Mot de passe incorrect.';
+      return;
+    }
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('admin-section').style.display = '';
+    const data = await resp.json();
+    render(data);
+  }
+
+  async function loadReservations() {
+    const resp = await fetch('/api/admin/reservations?pwd=' + encodeURIComponent(pwd));
+    const data = await resp.json();
+    render(data);
+  }
+
+  function render(bookings) {
+    document.getElementById('count').textContent = bookings.length;
+    document.getElementById('header-info').textContent = bookings.length + ' rendez-vous';
+    const tbody = document.getElementById('table-body');
+    if (!bookings.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="empty">Aucun rendez-vous pour le moment.</td></tr>';
+      return;
+    }
+    const sorted = [...bookings].sort((a, b) => (a.date + a.heure) > (b.date + b.heure) ? 1 : -1);
+    tbody.innerHTML = sorted.map((b, i) => `
+      <tr>
+        <td style="color:var(--text-muted)">${i + 1}</td>
+        <td><strong>${b.prenom} ${b.nom}</strong></td>
+        <td>${b.tel}</td>
+        <td>${b.email || '—'}</td>
+        <td>${b.service}</td>
+        <td>${formatDate(b.date)}</td>
+        <td style="color:var(--gold);font-weight:500">${b.heure}</td>
+      </tr>`).join('');
+  }
+</script>
+</body>
+</html>
