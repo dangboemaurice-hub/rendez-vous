@@ -48,7 +48,7 @@ app.post('/api/reservation', async (req, res) => {
 
   const alreadyBooked = bookings.some(b => b.date === date && b.heure === heure);
   if (alreadyBooked) {
-    return res.status(409).json({ success: false, error: 'Ce créneau vient d\'être réservé. Veuillez en choisir un autre.' });
+    return res.status(409).json({ success: false, error: 'Ce créneau vient d\'être réservé.' });
   }
 
   bookings.push({ prenom, nom, tel, email, service, date, heure });
