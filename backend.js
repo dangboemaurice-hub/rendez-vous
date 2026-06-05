@@ -16,8 +16,24 @@ app.get('/', (req, res) => {
 const resend = new Resend('re_efPgyhjs_QBvRnVrLLB6RW57ScNUkRgib');
 
 const bookings = [];
+const sseClients = [];
 
 const allSlots = ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00'];
+const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+app.get('/api/events', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+  sseClients.push(res);
+  const heartbeat = setInterval(() => res.write(': ping\n\n'), 25000);
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    const idx = sseClients.indexOf(res);
+    if (idx !== -1) sseClients.splice(idx, 1);
+  });
+});
 
 app.get('/api/slots', (req, res) => {
   const { date } = req.query;
@@ -27,7 +43,7 @@ app.get('/api/slots', (req, res) => {
 });
 
 app.post('/api/reservation', async (req, res) => {
-  const { prenom, nom, tel, service, date, heure } = req.body;
+  const { prenom, nom, tel, email, service, date, heure } = req.body;
   console.log('Réservation reçue :', { prenom, nom, tel, service, date, heure });
 
   const alreadyBooked = bookings.some(b => b.date === date && b.heure === heure);
@@ -35,9 +51,14 @@ app.post('/api/reservation', async (req, res) => {
     return res.status(409).json({ success: false, error: 'Ce créneau vient d\'être réservé. Veuillez en choisir un autre.' });
   }
 
-  bookings.push({ prenom, nom, tel, service, date, heure });
+  bookings.push({ prenom, nom, tel, email, service, date, heure });
+
+  const payload = JSON.stringify({ date, heure });
+  sseClients.forEach(client => client.write(`data: ${payload}\n\n`));
 
   try {
+    const [y, m, d] = date.split('-');
+    const displayDate = parseInt(d) + ' ' + months[parseInt(m) - 1] + ' ' + y;
     await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: 'dangboemaurice@gmail.com',
@@ -47,7 +68,7 @@ app.post('/api/reservation', async (req, res) => {
         <p><strong>Nom :</strong> ${prenom} ${nom}</p>
         <p><strong>Téléphone :</strong> ${tel}</p>
         <p><strong>Service :</strong> ${service}</p>
-        <p><strong>Date :</strong> ${date}</p>
+        <p><strong>Date :</strong> ${displayDate}</p>
         <p><strong>Heure :</strong> ${heure}</p>
       `
     });

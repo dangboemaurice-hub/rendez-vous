@@ -371,6 +371,32 @@
     .success-detail div span:first-child { color: var(--text-muted); }
     .success-detail div span:last-child { font-weight: 500; }
 
+    /* ─── TOAST ─── */
+    .toast {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #c0392b;
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 999;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      max-width: 90%;
+      text-align: center;
+    }
+    .slot-btn.taken {
+      background: #f5f5f5;
+      color: #bbb;
+      border-color: #e0e0e0;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+
     /* ─── RESPONSIVE ─── */
     @media (max-width: 540px) {
       .hero h1 { font-size: 1.9rem; }
@@ -487,6 +513,8 @@
 
   </div>
 
+  <div class="toast" id="toast"></div>
+
   <script>
     const services = [
       { id:1, icon:'✂️', name:'Homme sans barbe',        price:'13 €',  dur:'1h',  mins:60  },
@@ -507,6 +535,33 @@
     const now = new Date();
     curYear = now.getFullYear();
     curMonth = now.getMonth();
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => { t.style.display = 'none'; }, 5000);
+    }
+
+    const evtSource = new EventSource('/api/events');
+    evtSource.onmessage = (e) => {
+      const { date, heure } = JSON.parse(e.data);
+      if (date !== sel.date) return;
+      document.querySelectorAll('.slot-btn').forEach(btn => {
+        if (btn.textContent.trim() === heure) {
+          if (sel.slot === heure) {
+            sel.slot = null;
+            document.getElementById('btn2').disabled = true;
+            showToast('Le créneau ' + heure + ' vient d\'être pris. Veuillez en choisir un autre.');
+          }
+          btn.remove();
+        }
+      });
+      if (!document.querySelector('.slot-btn')) {
+        document.getElementById('slots-grid').innerHTML = '<div class="no-slots">Aucun créneau disponible ce jour. Choisissez une autre date.</div>';
+      }
+    };
 
     function init() {
       const grid = document.getElementById('services-grid');
@@ -637,24 +692,26 @@
       const no = document.getElementById('nom').value.trim();
       const t  = document.getElementById('tel').value.trim();
       const e  = document.getElementById('email').value.trim();
-      const ds = formatDate(sel.date);
       try {
         const resp = await fetch('/api/reservation', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             prenom: p, nom: no, tel: t, email: e,
-            service: sel.service.name, date: ds, heure: sel.slot
+            service: sel.service.name, date: sel.date, heure: sel.slot
           })
         });
         const data = await resp.json();
         if (!data.success) {
-          alert(data.error || 'Erreur lors de la réservation.');
-          await selectDate(sel.date);
+          if (resp.status === 409) {
+            goStep(2);
+            await selectDate(sel.date);
+          }
+          showToast(data.error || 'Erreur lors de la réservation.');
           return;
         }
       } catch {
-        alert('Erreur de connexion au serveur.');
+        showToast('Erreur de connexion au serveur.');
         return;
       }
       document.getElementById('success-detail').innerHTML = `
