@@ -56,12 +56,14 @@ app.post('/api/reservation', async (req, res) => {
   const payload = JSON.stringify({ date, heure });
   sseClients.forEach(client => client.write(`data: ${payload}\n\n`));
 
+  res.json({ success: true });
+
   try {
     const [y, m, d] = date.split('-');
     const displayDate = parseInt(d) + ' ' + months[parseInt(m) - 1] + ' ' + y;
     await resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: 'becromin13@gmail.com',
+      to: ['dangboemaurice@gmail.com', 'becromin13@gmail.com'],
       subject: `Nouvelle réservation — ${prenom} ${nom}`,
       html: `
         <h2>Nouvelle réservation</h2>
@@ -72,10 +74,8 @@ app.post('/api/reservation', async (req, res) => {
         <p><strong>Heure :</strong> ${heure}</p>
       `
     });
-    res.json({ success: true });
   } catch (err) {
     console.error('Erreur envoi email :', err.message);
-    res.status(500).json({ success: false, error: err.message });
   }
 });
 
