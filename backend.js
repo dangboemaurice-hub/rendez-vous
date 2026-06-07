@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const { Resend } = require('resend');
 
 const app = express();
@@ -15,7 +16,22 @@ app.get('/', (req, res) => {
 
 const resend = new Resend('re_efPgyhjs_QBvRnVrLLB6RW57ScNUkRgib');
 
-const bookings = [];
+const BOOKINGS_FILE = path.join(__dirname, 'bookings.json');
+
+function loadBookings() {
+  try {
+    if (fs.existsSync(BOOKINGS_FILE)) {
+      return JSON.parse(fs.readFileSync(BOOKINGS_FILE, 'utf8'));
+    }
+  } catch {}
+  return [];
+}
+
+function saveBookings() {
+  fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(bookings, null, 2), 'utf8');
+}
+
+const bookings = loadBookings();
 const sseClients = [];
 
 const allSlots = ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00'];
@@ -52,6 +68,7 @@ app.post('/api/reservation', async (req, res) => {
   }
 
   bookings.push({ prenom, nom, tel, email, service, date, heure });
+  saveBookings();
 
   const payload = JSON.stringify({ date, heure });
   sseClients.forEach(client => client.write(`data: ${payload}\n\n`));
@@ -89,7 +106,9 @@ app.get('/api/admin/reservations', (req, res) => {
   if (req.query.pwd !== ADMIN_PWD) {
     return res.status(401).json({ error: 'Mot de passe incorrect.' });
   }
-  res.json(bookings);
+  const today = new Date().toISOString().split('T')[0];
+  const upcoming = bookings.filter(b => b.date >= today);
+  res.json(upcoming);
 });
 
 const PORT = process.env.PORT || 3001;
